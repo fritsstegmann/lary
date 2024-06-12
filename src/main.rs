@@ -1,12 +1,12 @@
 mod app_error;
 mod fily;
-mod hyper;
-mod logy;
+// mod hyper;
+// mod logy;
 mod middleware;
-mod tracky;
+// mod tracky;
 
+use anyhow::Context;
 use dotenv::dotenv;
-use tokio::join;
 use tracing::Level;
 
 #[tokio::main]
@@ -23,12 +23,15 @@ async fn main() -> anyhow::Result<()> {
         // Set the subscriber as the default.
         .init();
 
-    let tracky = tokio::spawn(tracky::run());
+    // let tracky = tokio::spawn(tracky::run());
     let fily = tokio::spawn(fily::run());
-    let logy = tokio::spawn(logy::run());
-    let hypy = tokio::spawn(hyper::run());
+    // let logy = tokio::spawn(logy::run());
+    // let hypy = tokio::spawn(hyper::run());
 
-    let (_, _, _, _) = join!(fily, logy, tracky, hypy);
+    let _ = fily.await.context("failed staging fily")?;
 
+    // let _ = join!(fily);
+
+    // let (_, _, _, _) = join!(fily, logy, tracky, hypy);
     Ok(())
 }
