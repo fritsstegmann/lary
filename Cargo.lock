@@ -904,6 +904,33 @@ dependencies = [
 ]
 
 [[package]]
+name = "lary"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bytes 1.6.0",
+ "chrono",
+ "dotenv",
+ "future-utils",
+ "http-body-util",
+ "hyper",
+ "hyper-util",
+ "redis 0.25.4",
+ "serde",
+ "serde-redis",
+ "serde_json",
+ "sqlx",
+ "thiserror",
+ "tokio 1.37.0",
+ "tower",
+ "tower-http",
+ "tracing",
+ "tracing-subscriber",
+ "uuid",
+]
+
+[[package]]
 name = "lazy_static"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -974,33 +1001,6 @@ name = "log"
 version = "0.4.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "90ed8c1e510134f979dbc4f070f87d4313098b704861a105fe34231c70a3901c"
-
-[[package]]
-name = "loggy"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum",
- "bytes 1.6.0",
- "chrono",
- "dotenv",
- "future-utils",
- "http-body-util",
- "hyper",
- "hyper-util",
- "redis 0.25.4",
- "serde",
- "serde-redis",
- "serde_json",
- "sqlx",
- "thiserror",
- "tokio 1.37.0",
- "tower",
- "tower-http",
- "tracing",
- "tracing-subscriber",
- "uuid",
-]
 
 [[package]]
 name = "matchit"
