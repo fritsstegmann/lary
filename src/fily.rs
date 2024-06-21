@@ -1,72 +1,48 @@
-use axum::body::Bytes;
-use axum::extract::Path;
-use axum::http::StatusCode;
-use axum::response::IntoResponse;
-use axum::routing::{delete, get, put};
-use axum::Router;
+mod create_bucket;
+mod delete_object;
+mod error_response;
+mod get_object;
+mod put_object;
+mod search_bucket;
+
+use std::sync::Arc;
+
+use axum::{
+    routing::{delete, get, put},
+    Extension, Router,
+};
+use serde::Deserialize;
 use tower_http::trace::TraceLayer;
 use tracing::debug;
 
-use crate::app_error::AppError;
-
-async fn create_bucket(Path(bucket): Path<String>) {
-    tokio::fs::create_dir_all(bucket).await.unwrap();
+#[derive(Deserialize)]
+pub struct Config {
+    location: String,
+    port: String,
 }
 
-async fn search_bucket() -> Result<impl IntoResponse, AppError> {
-    Ok(StatusCode::OK)
-}
+pub async fn run(config: Config) -> anyhow::Result<()> {
+    let config_state = Arc::new(config);
 
-async fn delete_object(Path((bucket, file)): Path<(String, String)>) -> impl IntoResponse {
-    let s = format!("{}/{}", bucket, file);
-    let path = std::path::Path::new(&s);
-    tokio::fs::remove_file(path).await.unwrap();
-    StatusCode::OK
-}
+    let port = config_state.port.clone();
 
-async fn get_object(
-    Path((bucket, file)): Path<(String, String)>,
-) -> Result<impl IntoResponse, AppError> {
-    let s = format!("{}/{}", bucket, file);
-    let path = std::path::Path::new(&s);
-
-    let file_results = tokio::fs::read(&path).await;
-
-    match file_results {
-        Ok(file_results) => Ok((StatusCode::OK, file_results)),
-        Err(_) => Ok((StatusCode::NOT_FOUND, vec![])),
-    }
-}
-
-async fn put_object(
-    Path((bucket, file)): Path<(String, String)>,
-    bytes: Bytes,
-) -> impl IntoResponse {
-    debug!("debug {}, {} -> {:?}", bucket, file, bytes);
-
-    let s = format!("{}/{}", bucket, file);
-    let path = std::path::Path::new(&s);
-    let prefix = path.parent().unwrap();
-    tokio::fs::create_dir_all(prefix).await.unwrap();
-
-    tokio::fs::write(&path, bytes.as_ref()).await.unwrap();
-    (StatusCode::OK, "")
-}
-
-pub async fn run() -> anyhow::Result<()> {
     // build our application with a route
     let app = Router::new()
-        .route("/:bucket", put(create_bucket))
-        .route("/:bucket", get(search_bucket))
-        .route("/:bucket/:file", get(get_object))
-        .route("/:bucket/:file", put(put_object))
-        .route("/:bucket/:file", delete(delete_object))
+        .route("/:bucket", put(create_bucket::handle))
+        .route("/:bucket", get(search_bucket::handle))
+        .route("/:bucket/:file", get(get_object::handle))
+        .route("/:bucket/:file", put(put_object::handle))
+        .route("/:bucket/:file", delete(delete_object::handle))
+        .layer(Extension(config_state))
         .layer(TraceLayer::new_for_http());
 
-    debug!("running axum server");
-
     // run our app with hyper, listening globally on port 3000
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:8333").await.unwrap();
+    let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}", &port))
+        .await
+        .unwrap();
+
+    debug!("running fily server on port {}", &port);
+
     axum::serve(listener, app).await.unwrap();
 
     Ok(())
