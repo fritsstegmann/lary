@@ -4,15 +4,19 @@ use axum::extract::Path;
 use axum::response::IntoResponse;
 use axum::Extension;
 use bytes::Bytes;
-use hyper::StatusCode;
+use hyper::{HeaderMap, StatusCode};
+use tracing::debug;
 
 use super::Config;
 
 pub async fn handle(
     config: Extension<Arc<Config>>,
+    headers: HeaderMap,
     Path((bucket, file)): Path<(String, String)>,
     bytes: Bytes,
 ) -> impl IntoResponse {
+    debug!("headers: {:?}", headers);
+
     let s = format!("{}/{}/{}", config.location, bucket, file);
     let path = std::path::Path::new(&s);
     let prefix = path.parent().unwrap();

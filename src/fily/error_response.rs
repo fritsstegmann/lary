@@ -1,8 +1,8 @@
 use axum::body::Body;
 use axum::response::{IntoResponse, Response};
 use hyper::StatusCode;
+use quick_xml::se::to_string;
 use serde::{Deserialize, Serialize};
-use serde_xml_rs::to_string;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct Error {

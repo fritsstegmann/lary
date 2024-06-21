@@ -1,7 +1,10 @@
 mod create_bucket;
+mod create_general_bucket;
+mod delete_bucket;
 mod delete_object;
 mod error_response;
 mod get_object;
+mod list_buckets;
 mod put_object;
 mod search_bucket;
 
@@ -28,8 +31,11 @@ pub async fn run(config: Config) -> anyhow::Result<()> {
 
     // build our application with a route
     let app = Router::new()
+        .route("/", get(list_buckets::handle))
+        .route("/", put(create_general_bucket::handle))
         .route("/:bucket", put(create_bucket::handle))
         .route("/:bucket", get(search_bucket::handle))
+        .route("/:bucket", delete(delete_bucket::handle))
         .route("/:bucket/:file", get(get_object::handle))
         .route("/:bucket/:file", put(put_object::handle))
         .route("/:bucket/:file", delete(delete_object::handle))
