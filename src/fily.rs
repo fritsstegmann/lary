@@ -16,18 +16,20 @@ use axum::{
 };
 use serde::Deserialize;
 use tower_http::trace::TraceLayer;
-use tracing::debug;
+use tracing::info;
 
 #[derive(Deserialize)]
 pub struct Config {
     location: String,
     port: String,
+    address: String,
 }
 
 pub async fn run(config: Config) -> anyhow::Result<()> {
     let config_state = Arc::new(config);
 
     let port = config_state.port.clone();
+    let address = config_state.address.clone();
 
     // build our application with a route
     let app = Router::new()
@@ -43,11 +45,11 @@ pub async fn run(config: Config) -> anyhow::Result<()> {
         .layer(TraceLayer::new_for_http());
 
     // run our app with hyper, listening globally on port 3000
-    let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}", &port))
+    let listener = tokio::net::TcpListener::bind(format!("{}:{}", &address, &port))
         .await
         .unwrap();
 
-    debug!("running fily server on port {}", &port);
+    info!("running fily server on {}:{}", &address, &port);
 
     axum::serve(listener, app).await.unwrap();
 

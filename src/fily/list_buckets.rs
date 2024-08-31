@@ -4,7 +4,7 @@ use anyhow::Context;
 use axum::body::Body;
 use axum::response::{IntoResponse, Response};
 use axum::Extension;
-use chrono::{DateTime, Timelike, Utc};
+use chrono::{DateTime, Utc};
 use hyper::StatusCode;
 use quick_xml::se::to_string;
 use serde::{Deserialize, Serialize};
