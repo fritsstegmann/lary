@@ -6,6 +6,7 @@ mod error_response;
 mod get_object;
 mod list_buckets;
 mod put_object;
+mod s3_app_error;
 mod search_bucket;
 
 use std::sync::Arc;

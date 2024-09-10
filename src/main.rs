@@ -50,8 +50,7 @@ async fn main() -> anyhow::Result<()> {
     match args.cmd {
         Commands::Serve => {
             let fily = tokio::spawn(fily::run(config.fily));
-            let logy = tokio::spawn(logy::run());
-            let (_, _) = join!(fily, logy);
+            let _ = join!(fily);
         }
         Commands::Fily => {}
     }

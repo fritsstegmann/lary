@@ -1,5 +1,7 @@
 use std::sync::Arc;
 
+use super::s3_app_error::S3AppError;
+use super::Config;
 use anyhow::Context;
 use axum::body::Body;
 use axum::response::{IntoResponse, Response};
@@ -8,10 +10,6 @@ use chrono::{DateTime, Utc};
 use hyper::StatusCode;
 use quick_xml::se::to_string;
 use serde::{Deserialize, Serialize};
-
-use crate::app_error::AppError;
-
-use super::Config;
 
 #[derive(Deserialize, Serialize, Debug)]
 struct Bucket {
@@ -45,7 +43,7 @@ impl IntoResponse for ListAllMyBucketsResult {
     }
 }
 
-pub async fn handle(config: Extension<Arc<Config>>) -> Result<Response, AppError> {
+async fn list_buckets(config: &Config) -> anyhow::Result<ListAllMyBucketsResult> {
     let location = &config.location;
 
     let mut buckets: Vec<Bucket> = vec![];
@@ -72,6 +70,12 @@ pub async fn handle(config: Extension<Arc<Config>>) -> Result<Response, AppError
     Ok(ListAllMyBucketsResult {
         buckets: List { buckets },
         owner: "".to_string(),
+    })
+}
+
+pub async fn handle(config: Extension<Arc<Config>>) -> Result<Response, S3AppError> {
+    match list_buckets(&config).await {
+        Ok(list_buckets) => Ok(list_buckets.into_response()),
+        Err(e) => Err(S3AppError::from(e)),
     }
-    .into_response())
 }
