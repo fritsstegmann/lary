@@ -1,6 +1,6 @@
 log_level = "INFO"
 
 [fily]
-location = ".fily/"
+location = "/data"
 port = "8333"
 address = "127.0.0.1"
