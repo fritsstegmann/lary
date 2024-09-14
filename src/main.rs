@@ -49,8 +49,7 @@ async fn main() -> anyhow::Result<()> {
 
     match args.cmd {
         Commands::Serve => {
-            let fily = tokio::spawn(fily::run(config.fily));
-            let _ = join!(fily);
+            let _ = fily::run(config.fily).await;
         }
         Commands::Fily => {}
     }

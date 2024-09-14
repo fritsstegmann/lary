@@ -1,6 +1,6 @@
-log_level = "INFO"
+log_level = "DEBUG"
 
 [fily]
 location = "/data"
 port = "8333"
-address = "127.0.0.1"
+address = "0.0.0.0"
